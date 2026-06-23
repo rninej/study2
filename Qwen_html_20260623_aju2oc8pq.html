@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AQA GCSE Physics — Multi-Topic Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 850px;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  h1 { color: #333; margin-bottom: 5px; text-align: center; font-size: 24px; }
+  .subtitle { text-align: center; color: #666; margin-bottom: 8px; font-size: 13px; }
+  .exam-info {
+    text-align: center;
+    background: #fff3cd;
+    color: #856404;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+  .tab {
+    padding: 9px 14px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    color: #555;
+  }
+  .tab:hover { background: #d0d0d0; }
+  .tab.active {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245,87,108,0.4);
+  }
+  .tab .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.3);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    margin-left: 4px;
+  }
+  .progress-container {
+    background: #eee;
+    border-radius: 10px;
+    height: 22px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-bar {
+    background: linear-gradient(90deg, #f093fb, #f5576c);
+    height: 100%;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    color: #333;
+    font-size: 12px;
+  }
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: #f5f5f5;
+    border-radius: 10px;
+  }
+  .stat { text-align: center; }
+  .stat-value { font-size: 22px; font-weight: bold; color: #f5576c; }
+  .stat-label { font-size: 11px; color: #666; }
+  .topic-tag {
+    display: inline-block;
+    background: #fce4ec;
+    color: #c2185b;
+    padding: 5px 14px;
+    border-radius: 15px;
+    font-size: 12px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  .question {
+    font-size: 17px;
+    margin-bottom: 20px;
+    color: #333;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    padding: 14px 18px;
+    background: #f5f5f5;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: all 0.2s;
+  }
+  .option:hover:not(:disabled) {
+    background: #fce4ec;
+    border-color: #f5576c;
+    transform: translateX(5px);
+  }
+  .option:disabled { cursor: not-allowed; }
+  .option.correct { background: #c8e6c9; border-color: #4CAF50; color: #2e7d32; }
+  .option.wrong { background: #ffcdd2; border-color: #f44336; color: #c62828; }
+  .feedback {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    display: none;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: #c8e6c9; color: #2e7d32; }
+  .feedback.wrong { background: #fff3e0; color: #e65100; border-left: 4px solid #ff9800; }
+  .next-btn {
+    margin-top: 15px;
+    padding: 12px 30px;
+    background: #f5576c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    display: none;
+    font-weight: 600;
+  }
+  .next-btn:hover { background: #d44458; }
+  .next-btn.show { display: inline-block; }
+  .complete {
+    text-align: center;
+    padding: 25px;
+  }
+  .complete h2 { color: #4CAF50; margin-bottom: 15px; }
+  .restart-btn {
+    padding: 12px 30px;
+    background: #f5576c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 15px;
+  }
+  .restart-btn:hover { background: #d44458; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>⚡ AQA GCSE Physics — Multi-Topic Quiz</h1>
+  <p class="subtitle">Wrong answers come back • Switch topics anytime</p>
+  <div class="exam-info">📅 Assessment: 25th June, Periods 1 & 2 • All Year 10s must attend</div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div id="quiz-area">
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+      <div class="progress-text" id="progress-text">0 / 20</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="remaining">20</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="first-try">0</div>
+        <div class="stat-label">First Try ✓</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="attempts">0</div>
+        <div class="stat-label">Attempts</div>
+      </div>
+    </div>
+
+    <div class="topic-tag" id="topic-tag"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="next-btn">Next Question →</button>
+  </div>
+
+  <div id="complete-area" class="complete" style="display:none;">
+    <h2>🎉 Topic Complete!</h2>
+    <div id="complete-stats" style="margin:20px 0; font-size:15px;"></div>
+    <button class="restart-btn" onclick="restartCurrentTopic()">Restart This Topic</button>
+  </div>
+</div>
+
+<script>
+const topics = {
+  "P1": {
+    name: "P1: Energy",
+    emoji: "⚡",
+    questions: [
+      {q:"What is the unit of energy?",options:["Watt","Joule","Newton","Pascal"],correct:1,explanation:"Energy is measured in Joules (J). Watts measure power (rate of energy transfer)."},
+      {q:"Which of the following is a renewable energy source?",options:["Coal","Oil","Wind","Natural gas"],correct:2,explanation:"Wind is renewable — it won't run out. Coal, oil, and gas are fossil fuels (non-renewable)."},
+      {q:"What happens to the kinetic energy of a car as its speed doubles?",options:["It doubles","It quadruples (×4)","It halves","It stays the same"],correct:1,explanation:"KE = ½mv². Since speed is squared, doubling speed quadruples the kinetic energy."},
+      {q:"What is the formula for gravitational potential energy?",options:["E = mgh","E = ½mv²","E = Fd","E = Pt"],correct:0,explanation:"GPE = mass × gravitational field strength × height (E = mgh)."},
+      {q:"What is the formula for kinetic energy?",options:["E = mgh","E = ½mv²","E = Fd","E = mc²"],correct:1,explanation:"Kinetic energy = ½ × mass × velocity² (E = ½mv²)."},
+      {q:"What does 'conservation of energy' mean?",options:["Energy can be created","Energy can be destroyed","Energy can be transferred but never created or destroyed","Energy is always lost"],correct:2,explanation:"Energy cannot be created or destroyed — only transferred between stores."},
+      {q:"What is the formula for efficiency?",options:["Useful output ÷ Total input × 100%","Total input ÷ Useful output × 100%","Useful output + Total input","Useful output × Total input"],correct:0,explanation:"Efficiency = (useful energy output ÷ total energy input) × 100%. Always less than 100%."},
+      {q:"Which energy store increases when an object is stretched?",options:["Kinetic","Thermal","Elastic potential","Chemical"],correct:2,explanation:"Stretching or compressing an object stores elastic potential energy."},
+      {q:"What is power?",options:["The total energy used","The rate of energy transfer","The force applied","The distance moved"],correct:1,explanation:"Power is the rate of energy transfer (or work done) — measured in Watts (1 W = 1 J/s)."},
+      {q:"What is the formula for power?",options:["P = E/t","P = Fd","P = mv","P = mgh"],correct:0,explanation:"Power = energy transferred ÷ time (P = E/t) or power = work done ÷ time."},
+      {q:"Which method of heat transfer does NOT require particles?",options:["Conduction","Convection","Radiation","All need particles"],correct:2,explanation:"Radiation (infrared) can travel through a vacuum — it doesn't need particles. Conduction and convection do."},
+      {q:"How does a vacuum flask reduce heat loss?",options:["It uses a thick metal wall","It has a vacuum between double walls to stop conduction and convection","It keeps the liquid at a constant temperature","It adds heat to the liquid"],correct:1,explanation:"The vacuum between the walls stops conduction and convection. Silvered walls reflect radiation."},
+      {q:"What type of energy store does food have?",options:["Kinetic","Chemical","Thermal","Nuclear"],correct:1,explanation:"Food contains chemical potential energy, released during digestion/respiration."},
+      {q:"What happens to wasted energy?",options:["It is destroyed","It dissipates (spreads out) to the surroundings","It is stored forever","It becomes mass"],correct:1,explanation:"Wasted energy is dissipated to the surroundings — usually as heat. It's not destroyed, just spread out and less useful."},
+      {q:"Which energy source uses uranium?",options:["Solar","Nuclear fission","Wind","Hydroelectric"],correct:1,explanation:"Nuclear fission uses uranium (or plutonium) atoms splitting to release energy."},
+      {q:"What is a disadvantage of solar energy?",options:["It produces CO₂","It only works when the sun is shining","It uses uranium","It causes acid rain"],correct:1,explanation:"Solar is intermittent — it doesn't generate power at night or when cloudy."},
+      {q:"What is the main energy transfer in a battery-powered torch?",options:["Chemical → Light → Thermal","Chemical → Electrical → Light (and thermal)","Kinetic → Electrical","Nuclear → Light"],correct:1,explanation:"Battery (chemical) → circuit (electrical) → bulb (light + wasted thermal)."},
+      {q:"What is specific heat capacity?",options:["Energy needed to change state","Energy needed to raise 1kg by 1°C","The temperature of an object","The mass of an object"],correct:1,explanation:"Specific heat capacity = energy needed to raise the temperature of 1 kg of a substance by 1°C."},
+      {q:"What is the formula for change in thermal energy?",options:["E = mcΔT","E = mgh","E = ½mv²","E = Pt"],correct:0,explanation:"Change in thermal energy = mass × specific heat capacity × temperature change (E = mcΔT)."},
+      {q:"Why are loft insulation and double glazing used in homes?",options:["To make the house look nice","To reduce heat transfer and save energy","To increase air pressure","To produce electricity"],correct:1,explanation:"They reduce heat loss by conduction (and convection), improving efficiency and reducing bills."}
+    ]
+  },
+  "P2": {
+    name: "P2: Electricity",
+    emoji: "🔌",
+    questions: [
+      {q:"What is the unit of electric current?",options:["Volt","Ampere (Amp)","Ohm","Watt"],correct:1,explanation:"Current is measured in Amperes (A). Volts measure potential difference, Ohms measure resistance."},
+      {q:"What is the formula linking charge, current, and time?",options:["Q = It","Q = V/R","Q = IR","Q = Pt"],correct:0,explanation:"Charge (Q) = current (I) × time (t). Measured in Coulombs."},
+      {q:"What is potential difference?",options:["The flow of charge","The energy transferred per unit charge passing between two points","The resistance of a circuit","The speed of electrons"],correct:1,explanation:"Potential difference (voltage) is the work done (energy transferred) per coulomb of charge."},
+      {q:"What is Ohm's Law?",options:["V = IR","V = I/R","V = I+R","V = P/I"],correct:0,explanation:"Ohm's Law: Voltage = Current × Resistance (V = IR), at constant temperature."},
+      {q:"What happens to resistance when resistors are added in series?",options:["Total resistance decreases","Total resistance increases","Resistance stays the same","Resistance becomes zero"],correct:1,explanation:"In series, total resistance = R₁ + R₂ + R₃... — adding resistors increases total resistance."},
+      {q:"What is the current like in a series circuit?",options:["Different at different points","The same everywhere","Zero","It doubles at each component"],correct:1,explanation:"In a series circuit, current is the same at all points — there's only one path."},
+      {q:"What is the voltage like across components in parallel?",options:["Different across each","The same across each component","Zero","It adds up"],correct:1,explanation:"In parallel, the potential difference is the same across each branch."},
+      {q:"What happens to total resistance when resistors are added in parallel?",options:["It increases","It decreases","It stays the same","It becomes infinite"],correct:1,explanation:"Adding resistors in parallel decreases total resistance — more paths for current to flow."},
+      {q:"What does an LDR do?",options:["Changes resistance with temperature","Changes resistance with light intensity","Changes resistance with pressure","Stores charge"],correct:1,explanation:"An LDR (light-dependent resistor) has low resistance in bright light and high resistance in darkness."},
+      {q:"What does a thermistor do?",options:["Changes resistance with light","Changes resistance with temperature","Stores energy","Produces current"],correct:1,explanation:"A thermistor's resistance decreases as temperature increases (for most common thermistors)."},
+      {q:"What is the national grid?",options:["A type of battery","The network of cables and transformers that distributes electricity across the country","A circuit board","A type of power station"],correct:1,explanation:"The national grid transfers electricity from power stations to homes using high voltages and transformers."},
+      {q:"Why is electricity transmitted at high voltage in the national grid?",options:["To make it safer","To reduce energy lost as heat in the cables","To increase current","To make cables thinner"],correct:1,explanation:"High voltage means lower current for the same power, reducing heat loss (P = I²R) in the cables."},
+      {q:"What does a step-up transformer do?",options:["Decreases voltage","Increases voltage","Stores charge","Converts AC to DC"],correct:1,explanation:"A step-up transformer increases voltage (from power station to transmission lines)."},
+      {q:"What type of current does the mains supply provide?",options:["Direct current (DC)","Alternating current (AC)","Static current","Pulsed current"],correct:1,explanation:"Mains electricity is AC (alternating current) — it constantly changes direction. UK frequency is 50 Hz."},
+      {q:"What type of current does a battery provide?",options:["AC","DC","Both","Neither"],correct:1,explanation:"Batteries supply direct current (DC) — current flows in one direction only."},
+      {q:"What is the formula for electrical power?",options:["P = VI","P = V/I","P = I/V","P = V+I"],correct:0,explanation:"Power = voltage × current (P = VI). Also P = I²R."},
+      {q:"What is the purpose of the earth wire in a plug?",options:["To complete the circuit","To carry current normally","A safety wire that carries current if the casing becomes live","To increase resistance"],correct:2,explanation:"The earth wire is a safety feature — if the metal casing becomes live, current flows through it, blowing the fuse."},
+      {q:"What does a fuse do?",options:["Increases current","Melts and breaks the circuit if current is too high","Stores energy","Converts AC to DC"],correct:1,explanation:"A fuse contains a thin wire that melts when current exceeds its rating, breaking the circuit to prevent fires."},
+      {q:"What is the formula for energy transferred in a circuit?",options:["E = QV","E = IR","E = Pt","E = mc²"],correct:0,explanation:"Energy transferred = charge × potential difference (E = QV). Also E = Pt."},
+      {q:"What happens to the resistance of a filament lamp as it gets hotter?",options:["It decreases","It increases","It stays the same","It becomes zero"],correct:1,explanation:"As a filament lamp heats up, its resistance increases — the I-V graph curves."}
+    ]
+  },
+  "P3": {
+    name: "P3: Particle Model",
+    emoji: "⚛️",
+    questions: [
+      {q:"What are the three states of matter?",options:["Solid, liquid, gas","Solid, liquid, plasma","Hot, cold, warm","Hard, soft, medium"],correct:0,explanation:"The three common states of matter are solid, liquid, and gas."},
+      {q:"In which state do particles have the most energy?",options:["Solid","Liquid","Gas","They all have the same"],correct:2,explanation:"Gas particles have the most kinetic energy — they move freely and quickly."},
+      {q:"What is the formula for density?",options:["Density = mass × volume","Density = mass ÷ volume","Density = volume ÷ mass","Density = mass + volume"],correct:1,explanation:"Density = mass ÷ volume (ρ = m/V). Measured in kg/m³ or g/cm³."},
+      {q:"What happens to the density of a gas when it is compressed?",options:["It decreases","It increases","It stays the same","It becomes zero"],correct:1,explanation:"Compressing a gas packs more particles into the same volume, increasing density."},
+      {q:"What is the formula for pressure?",options:["P = F/A","P = F×A","P = F/A²","P = A/F"],correct:0,explanation:"Pressure = force ÷ area (P = F/A). Measured in Pascals (Pa) or N/m²."},
+      {q:"Why do sharp knives cut better than blunt ones?",options:["They are heavier","They have a smaller area, so greater pressure for the same force","They are longer","They are made of better metal"],correct:1,explanation:"A sharp edge has a tiny area, so P = F/A gives a much larger pressure for the same force."},
+      {q:"What is the pressure of a gas caused by?",options:["Particles vibrating in place","Particles colliding with the walls of the container","The weight of the gas only","Chemical reactions"],correct:1,explanation:"Gas pressure is caused by particles colliding with the container walls — each collision exerts a force."},
+      {q:"What happens to gas pressure when temperature increases (at constant volume)?",options:["It decreases","It increases","It stays the same","It becomes zero"],correct:1,explanation:"Higher temperature = faster particles = more frequent and forceful collisions = higher pressure."},
+      {q:"What is absolute zero?",options:["0°C","0 K (-273°C) — the lowest possible temperature","100°C","The boiling point of water"],correct:1,explanation:"Absolute zero is 0 Kelvin (-273°C) — particles have minimum kinetic energy."},
+      {q:"What is specific latent heat?",options:["Energy needed to change temperature by 1°C","Energy needed to change state of 1kg without changing temperature","The boiling point of a substance","The density of a solid"],correct:1,explanation:"Specific latent heat = energy needed to change the state of 1 kg of a substance without a temperature change."},
+      {q:"What is the formula for energy during a change of state?",options:["E = mcΔT","E = mL","E = mgh","E = ½mv²"],correct:1,explanation:"Energy = mass × specific latent heat (E = mL). L is for fusion (solid↔liquid) or vaporisation (liquid↔gas)."},
+      {q:"What is specific latent heat of fusion?",options:["Energy to boil 1kg of liquid","Energy to melt 1kg of solid without temperature change","Energy to heat 1kg by 1°C","Energy to freeze 1kg"],correct:1,explanation:"Latent heat of fusion is for melting/freezing. Latent heat of vaporisation is for boiling/condensing."},
+      {q:"Why does temperature stay constant during a change of state?",options:["No energy is being added","Energy is being used to break bonds between particles, not increase kinetic energy","The particles stop moving","The substance is cooling down"],correct:1,explanation:"During a change of state, energy goes into breaking intermolecular bonds rather than increasing temperature."},
+      {q:"What is the boiling point of water in Kelvin?",options:["100 K","273 K","373 K","0 K"],correct:2,explanation:"100°C = 373 K. To convert °C to K, add 273."},
+      {q:"What is the arrangement of particles in a solid?",options:["Random and far apart","Close together in a regular pattern, vibrating","Close but able to slide past each other","Moving freely at high speed"],correct:1,explanation:"Solid particles are in a regular, fixed arrangement, vibrating about fixed positions."},
+      {q:"What is the arrangement of particles in a liquid?",options:["Regular and fixed","Close together but irregular, able to move/slide past each other","Far apart and moving fast","Locked in a crystal lattice"],correct:1,explanation:"Liquid particles are close but irregular, free to move around each other — giving liquids a fixed volume but no fixed shape."},
+      {q:"What happens to the volume of most substances when they are heated?",options:["It decreases","It increases (thermal expansion)","It stays the same","It becomes zero"],correct:1,explanation:"Most substances expand when heated — particles move more and take up more space."},
+      {q:"Why is water unusual when it freezes?",options:["It becomes less dense as a solid (ice floats)","It becomes more dense","It doesn't freeze","It turns to gas"],correct:0,explanation:"Water expands when it freezes — ice is less dense than liquid water, which is why ice floats."},
+      {q:"What is the unit of specific heat capacity?",options:["J/kg","J/kg/°C","J/°C","kg/°C"],correct:1,explanation:"Specific heat capacity is measured in J/(kg·°C) or J/(kg·K)."},
+      {q:"What happens to atmospheric pressure as altitude increases?",options:["It increases","It decreases","It stays the same","It doubles"],correct:1,explanation:"Atmospheric pressure decreases with altitude — there are fewer air particles above pushing down."}
+    ]
+  },
+  "P4": {
+    name: "P4: Atomic Structure",
+    emoji: "☢️",
+    questions: [
+      {q:"What are the three subatomic particles?",options:["Protons, neutrons, electrons","Protons, neutrons, ions","Electrons, positrons, neutrons","Quarks, leptons, bosons"],correct:0,explanation:"Atoms contain protons (+), neutrons (0), and electrons (-)."},
+      {q:"What charge does a proton have?",options:["Positive (+1)","Negative (-1)","Neutral (0)","Variable"],correct:0,explanation:"Protons have a relative charge of +1 and relative mass of 1."},
+      {q:"What charge does an electron have?",options:["Positive (+1)","Negative (-1)","Neutral (0)","No charge"],correct:1,explanation:"Electrons have a relative charge of -1 and very small mass (almost 0)."},
+      {q:"Where are protons and neutrons located?",options:["In the electron cloud","In the nucleus","Outside the atom","In orbitals"],correct:1,explanation:"Protons and neutrons are in the nucleus at the centre. Electrons orbit the nucleus."},
+      {q:"What is the atomic number?",options:["Number of neutrons","Number of protons","Number of electrons + neutrons","Total mass"],correct:1,explanation:"Atomic number = number of protons. It defines the element."},
+      {q:"What is the mass number?",options:["Number of protons","Number of neutrons","Number of protons + neutrons","Number of electrons"],correct:2,explanation:"Mass number = protons + neutrons (total nucleons in the nucleus)."},
+      {q:"What are isotopes?",options:["Atoms of different elements","Atoms of the same element with different numbers of neutrons","Atoms with different numbers of protons","Ions of the same element"],correct:1,explanation:"Isotopes have the same number of protons but different numbers of neutrons — same element, different mass."},
+      {q:"What is radioactive decay?",options:["The splitting of an atom","The random emission of radiation from an unstable nucleus","The joining of atoms","The cooling of a substance"],correct:1,explanation:"Radioactive decay is the spontaneous, random process by which unstable nuclei emit radiation to become more stable."},
+      {q:"What is an alpha particle?",options:["An electron","A helium nucleus (2 protons + 2 neutrons)","A neutron","A photon"],correct:1,explanation:"An alpha particle is 2 protons + 2 neutrons (same as a helium nucleus). It has a +2 charge."},
+      {q:"What is a beta particle?",options:["A helium nucleus","A fast-moving electron emitted from the nucleus","A neutron","A gamma ray"],correct:1,explanation:"A beta particle is a fast electron emitted when a neutron turns into a proton in the nucleus."},
+      {q:"What is gamma radiation?",options:["A particle with mass","High-energy electromagnetic radiation","A helium nucleus","A slow-moving neutron"],correct:1,explanation:"Gamma rays are high-frequency electromagnetic waves with no mass or charge."},
+      {q:"Which type of radiation is most ionising?",options:["Alpha","Beta","Gamma","All the same"],correct:0,explanation:"Alpha is the most ionising (strongly charged, heavy) but least penetrating — stopped by paper."},
+      {q:"Which type of radiation is most penetrating?",options:["Alpha","Beta","Gamma","All the same"],correct:2,explanation:"Gamma is the most penetrating — it needs thick lead or concrete to stop it."},
+      {q:"What is the half-life of a radioactive isotope?",options:["The time for all nuclei to decay","The average time for half the radioactive nuclei to decay","The time for the mass to halve","The time for radiation to stop"],correct:1,explanation:"Half-life is the average time taken for half the undecayed nuclei in a sample to decay."},
+      {q:"What is background radiation?",options:["Radiation from nuclear power stations only","Low-level radiation always present in the environment","Radiation from X-ray machines only","Radiation from the sun only"],correct:1,explanation:"Background radiation is always around us — from rocks, cosmic rays, food, and human activities."},
+      {q:"What is nuclear fission?",options:["Joining small nuclei together","Splitting a large, unstable nucleus into smaller nuclei","The decay of a single atom","The emission of gamma rays"],correct:1,explanation:"Fission is splitting a heavy nucleus (e.g. uranium-235) into two smaller nuclei, releasing energy and neutrons."},
+      {q:"What is nuclear fusion?",options:["Splitting a nucleus","Joining two light nuclei to form a heavier one, releasing energy","The decay of atoms","The cooling of a star"],correct:1,explanation:"Fusion is joining light nuclei (e.g. hydrogen) into heavier ones (e.g. helium) — this powers the sun."},
+      {q:"Where does nuclear fusion occur naturally?",options:["In nuclear power stations","In stars (like the sun)","On Earth's surface","In rocks"],correct:1,explanation:"Stars are powered by nuclear fusion — hydrogen fuses into helium, releasing huge amounts of energy."},
+      {q:"What is a chain reaction in nuclear fission?",options:["A single decay event","Neutrons released from fission cause more fission events, releasing more neutrons","A chemical reaction","The cooling of a reactor"],correct:1,explanation:"In fission, released neutrons hit other uranium nuclei, causing more fission — this is a chain reaction."},
+      {q:"What does a moderator do in a nuclear reactor?",options:["Speeds up neutrons","Slows down neutrons so they can be absorbed by uranium nuclei","Cools the reactor only","Produces electricity"],correct:1,explanation:"A moderator (e.g. water or graphite) slows fast neutrons so they can cause further fission in uranium-235."}
+    ]
+  },
+  "P5": {
+    name: "P5: Forces",
+    emoji: "🏋️",
+    questions: [
+      {q:"What is the unit of force?",options:["Joule","Newton","Pascal","Watt"],correct:1,explanation:"Force is measured in Newtons (N)."},
+      {q:"What is the formula linking force, mass, and acceleration?",options:["F = ma","F = m/a","F = m+a","F = mv"],correct:0,explanation:"Newton's second law: Force = mass × acceleration (F = ma)."},
+      {q:"What is the formula for weight?",options:["W = mg","W = m/g","W = m+a","W = Fd"],correct:0,explanation:"Weight = mass × gravitational field strength (W = mg). On Earth, g ≈ 9.8 N/kg."},
+      {q:"What is the difference between mass and weight?",options:["They are the same thing","Mass is the amount of matter (kg); weight is the force of gravity on it (N)","Mass changes with location; weight doesn't","Weight is measured in kg"],correct:1,explanation:"Mass is constant (amount of matter). Weight depends on gravity and changes with location."},
+      {q:"What is a resultant force?",options:["A single force that has the same effect as all forces combined","The largest force","The smallest force","The friction force"],correct:0,explanation:"The resultant force is the overall force acting on an object when all individual forces are combined."},
+      {q:"What happens when the resultant force on an object is zero?",options:["It accelerates","It stays still or moves at constant velocity","It decelerates","It changes direction"],correct:1,explanation:"If resultant force = 0, the object is in equilibrium — stationary or moving at constant velocity (Newton's 1st law)."},
+      {q:"What is Hooke's Law?",options:["F = ma","F = ke (force = spring constant × extension)","W = mg","P = F/A"],correct:1,explanation:"Hooke's Law: Force = spring constant × extension (F = ke), up to the limit of proportionality."},
+      {q:"What is the limit of proportionality?",options:["The maximum length of a spring","The point beyond which extension is no longer proportional to force","The weight of the spring","The mass of the spring"],correct:1,explanation:"Beyond the limit of proportionality, the spring is permanently deformed and Hooke's Law no longer applies."},
+      {q:"What is the formula for the moment of a force?",options:["M = Fd","M = F/d","M = F+d","M = F×a"],correct:0,explanation:"Moment = force × perpendicular distance from pivot (M = Fd). Measured in Nm."},
+      {q:"How can you increase the moment of a force?",options:["Decrease the force","Increase the distance from the pivot or increase the force","Use a shorter lever","Decrease the distance"],correct:1,explanation:"Moment = F × d. Increasing either force or distance from the pivot increases the moment."},
+      {q:"What is a lever?",options:["A type of pulley","A simple machine that increases the force by increasing distance from pivot","A type of spring","A type of gear"],correct:1,explanation:"A lever is a force multiplier — applying force further from the pivot gives a larger moment for the same force."},
+      {q:"What is the formula for pressure in a fluid?",options:["P = hρg","P = F/A","P = mg","P = ρgh"],correct:0,explanation:"Pressure in a fluid = height × density × gravitational field strength (P = hρg or P = ρgh)."},
+      {q:"What is upthrust?",options:["A downward force","The upward force exerted by a fluid on an object in it","Friction","Gravity"],correct:1,explanation:"Upthrust is the upward force a fluid exerts on an object. It's caused by greater pressure at greater depths."},
+      {q:"When does an object float?",options:["When its weight is greater than upthrust","When upthrust equals or exceeds its weight","When it is denser than the fluid","When it is heavy"],correct:1,explanation:"An object floats when upthrust ≥ weight. If denser than the fluid, it sinks."},
+      {q:"What is terminal velocity?",options:["The maximum speed an object can reach when falling through a fluid","The speed at the start of a fall","The speed of sound","The speed of light"],correct:0,explanation:"Terminal velocity is reached when drag (air resistance) equals weight — resultant force = 0, so speed is constant."},
+      {q:"What happens to air resistance as speed increases?",options:["It decreases","It increases","It stays the same","It becomes zero"],correct:1,explanation:"Air resistance increases with speed — that's why falling objects eventually reach terminal velocity."},
+      {q:"What is the formula for speed?",options:["s = d/t","s = dt","s = d+t","s = t/d"],correct:0,explanation:"Speed = distance ÷ time (s = d/t). Measured in m/s."},
+      {q:"What is the formula for acceleration?",options:["a = Δv/t","a = vt","a = v+t","a = v/t²"],correct:0,explanation:"Acceleration = change in velocity ÷ time (a = Δv/t). Measured in m/s²."},
+      {q:"What does a flat (horizontal) line on a distance-time graph mean?",options:["Moving at constant speed","Stationary","Accelerating","Decelerating"],correct:1,explanation:"A flat line on a distance-time graph means the object is not moving — distance isn't changing."},
+      {q:"What does the gradient of a distance-time graph represent?",options:["Acceleration","Speed","Distance","Time"],correct:1,explanation:"The gradient (slope) of a distance-time graph = speed. Steeper = faster."}
+    ]
+  },
+  "P6": {
+    name: "P6: Waves",
+    emoji: "🌊",
+    questions: [
+      {q:"What is a wave?",options:["A transfer of matter","A transfer of energy without transfer of matter","A type of force","A type of particle"],correct:1,explanation:"Waves transfer energy from one place to another without transferring matter."},
+      {q:"What is the difference between transverse and longitudinal waves?",options:["Transverse vibrate parallel; longitudinal vibrate perpendicular","Transverse vibrate perpendicular to direction; longitudinal vibrate parallel","They are the same","Transverse are sound; longitudinal are light"],correct:1,explanation:"Transverse: vibrations ⊥ to wave direction (e.g. light). Longitudinal: vibrations ∥ to wave direction (e.g. sound)."},
+      {q:"Which of these is a transverse wave?",options:["Sound","Ultrasound","Light","P-waves"],correct:2,explanation:"Light (and all EM waves) are transverse. Sound is longitudinal."},
+      {q:"Which of these is a longitudinal wave?",options:["Light","Water ripples","Sound","Gamma rays"],correct:2,explanation:"Sound is longitudinal — particles vibrate back and forth in the direction the wave travels."},
+      {q:"What is the amplitude of a wave?",options:["The distance between two peaks","The maximum displacement from the rest position","The number of waves per second","The speed of the wave"],correct:1,explanation:"Amplitude is the maximum displacement from the undisturbed/rest position — related to loudness/brightness."},
+      {q:"What is the frequency of a wave?",options:["The distance between peaks","The number of waves passing a point per second","The height of the wave","The speed of the wave"],correct:1,explanation:"Frequency = number of waves per second, measured in Hertz (Hz)."},
+      {q:"What is the wave equation?",options:["v = fλ","v = f/λ","v = f+λ","v = f×T"],correct:0,explanation:"Wave speed = frequency × wavelength (v = fλ). Measured in m/s."},
+      {q:"What happens to the frequency of a wave when it is reflected?",options:["It increases","It decreases","It stays the same","It becomes zero"],correct:2,explanation:"When a wave is reflected, its speed, frequency, and wavelength all stay the same."},
+      {q:"What is refraction?",options:["The bouncing back of a wave","The change in direction of a wave when it crosses a boundary between materials","The spreading out of a wave","The absorption of a wave"],correct:1,explanation:"Refraction is the bending of a wave as it enters a different medium — caused by a change in speed."},
+      {q:"When light enters a denser medium, what happens to it?",options:["It speeds up and bends away from the normal","It slows down and bends towards the normal","It stops","It reflects"],correct:1,explanation:"In a denser medium, light slows down and bends towards the normal (the line perpendicular to the boundary)."},
+      {q:"What is the normal in wave diagrams?",options:["The wave itself","A line perpendicular (at 90°) to the boundary/surface","The direction of the wave","The amplitude"],correct:1,explanation:"The normal is an imaginary line drawn at 90° to the surface at the point of incidence."},
+      {q:"What is the range of human hearing?",options:["1 Hz to 100 Hz","20 Hz to 20,000 Hz","100 Hz to 10,000 Hz","1 Hz to 1,000,000 Hz"],correct:1,explanation:"Humans can hear frequencies from about 20 Hz to 20,000 Hz."},
+      {q:"What is ultrasound?",options:["Sound below 20 Hz","Sound above 20,000 Hz","Very loud sound","Very quiet sound"],correct:1,explanation:"Ultrasound is sound with a frequency above the human hearing range (>20,000 Hz)."},
+      {q:"What is one use of ultrasound?",options:["Cooking food","Medical imaging (e.g. pregnancy scans) and cleaning","Producing electricity","Heating homes"],correct:1,explanation:"Ultrasound is used in medicine (foetal scans, breaking kidney stones) and for industrial cleaning."},
+      {q:"What is the electromagnetic spectrum?",options:["Only visible light","The continuous range of electromagnetic waves from radio to gamma","Only sound waves","Only X-rays"],correct:1,explanation:"The EM spectrum (in order of increasing frequency): radio, microwave, infrared, visible, UV, X-ray, gamma."},
+      {q:"Which EM wave has the longest wavelength?",options:["Gamma","X-ray","Radio","Visible light"],correct:2,explanation:"Radio waves have the longest wavelength and lowest frequency in the EM spectrum."},
+      {q:"Which EM wave has the highest frequency?",options:["Radio","Microwave","Visible light","Gamma"],correct:3,explanation:"Gamma rays have the highest frequency and shortest wavelength — they're the most energetic."},
+      {q:"What do all EM waves have in common?",options:["They all need a medium","They all travel at the same speed in a vacuum (speed of light)","They are all visible","They are all longitudinal"],correct:1,explanation:"All EM waves travel at 3 × 10⁸ m/s in a vacuum and are transverse waves."},
+      {q:"What is diffraction?",options:["The bouncing of waves","The spreading of waves when they pass through a gap or past an edge","The absorption of waves","The reflection of waves"],correct:1,explanation:"Diffraction is the spreading of waves through a gap. Most noticeable when the gap is similar in size to the wavelength."},
+      {q:"What is the Doppler effect?",options:["The change in wavelength/frequency when a source moves relative to an observer","The reflection of sound","The absorption of light","The bending of waves"],correct:0,explanation:"The Doppler effect: a moving source causes a shift in observed frequency (e.g. ambulance siren changes pitch as it passes)."}
+    ]
+  },
+  "P9": {
+    name: "P9: Magnetism & Electromagnetism",
+    emoji: "🧲",
+    questions: [
+      {q:"What are the two types of magnetic poles?",options:["Positive and negative","North and south","Up and down","East and west"],correct:1,explanation:"Magnets have a north and south pole. Like poles repel, unlike poles attract."},
+      {q:"What is a magnetic field?",options:["A type of electric current","The region around a magnet where a magnetic force acts","A type of gravity","A type of radiation"],correct:1,explanation:"A magnetic field is the area around a magnet where magnetic forces can be detected."},
+      {q:"Which direction do magnetic field lines go?",options:["South to north","North to south (outside the magnet)","Random directions","East to west"],correct:1,explanation:"Magnetic field lines go from the north pole to the south pole (outside the magnet)."},
+      {q:"What is a permanent magnet?",options:["A magnet that can be switched on and off","A magnet that produces its own magnetic field constantly","A magnet made of copper","A magnet that only works when heated"],correct:1,explanation:"A permanent magnet produces its own magnetic field all the time — it doesn't need to be switched on."},
+      {q:"What is an induced magnet?",options:["A magnet that's always magnetic","A magnetic material that becomes a magnet when placed in a magnetic field","A very strong magnet","A magnet made of plastic"],correct:1,explanation:"An induced magnet becomes magnetic only when placed in a magnetic field. It always experiences an attractive force."},
+      {q:"Which metals are magnetic?",options:["Copper, gold, silver","Iron, steel, cobalt, nickel","Aluminium, zinc, lead","All metals"],correct:1,explanation:"Only iron, steel, cobalt, and nickel are magnetic (ferromagnetic materials)."},
+      {q:"What is the motor effect?",options:["A magnet moving a magnet","A force on a current-carrying wire in a magnetic field","A generator producing electricity","A transformer changing voltage"],correct:1,explanation:"The motor effect: a current-carrying wire in a magnetic field experiences a force."},
+      {q:"What determines the direction of the force in the motor effect?",options:["The size of the current only","The direction of the current and the direction of the magnetic field","The length of the wire only","The temperature"],correct:1,explanation:"The force direction depends on both current direction and magnetic field direction — use Fleming's Left-Hand Rule."},
+      {q:"What is Fleming's Left-Hand Rule used for?",options:["To measure current","To find the direction of force in the motor effect","To calculate resistance","To measure voltage"],correct:1,explanation:"Fleming's Left-Hand Rule: thumb = force/motion, first finger = field, second finger = current — all at right angles."},
+      {q:"What is the formula for force on a conductor in a magnetic field?",options:["F = BIl","F = BI/l","F = B+I+l","F = B/I"],correct:0,explanation:"Force = magnetic flux density × current × length (F = BIl). B is measured in Tesla."},
+      {q:"How does a simple DC motor work?",options:["Using gravity","The motor effect causes a coil to spin; a split-ring commutator reverses current every half-turn","Using permanent magnets only","Using friction"],correct:1,explanation:"A DC motor uses the motor effect. The split-ring commutator reverses current every half-turn so the coil keeps spinning."},
+      {q:"What does a loudspeaker use?",options:["The generator effect","The motor effect — alternating current causes a coil to vibrate, producing sound","Static electricity","Nuclear energy"],correct:1,explanation:"A loudspeaker uses the motor effect — AC in a coil within a magnetic field causes vibrations that produce sound."},
+      {q:"What is the generator effect?",options:["A force on a wire","An induced potential difference when a wire moves through a magnetic field (or field changes)","A type of motor","A type of transformer"],correct:1,explanation:"The generator effect: moving a wire in a magnetic field (or changing the field) induces a potential difference."},
+      {q:"How can you increase the induced voltage in a generator?",options:["Move the wire slower","Use a weaker magnet","Increase the speed of movement or use a stronger magnet","Use fewer turns of wire"],correct:2,explanation:"Induced voltage increases with: faster movement, stronger magnet, more turns of wire, or larger coil area."},
+      {q:"What is the difference between AC and DC generators?",options:["AC uses a battery; DC doesn't","AC uses slip rings; DC uses a split-ring commutator","They are identical","AC is slower"],correct:1,explanation:"AC generators use slip rings (current reverses naturally). DC generators use a split-ring commutator to keep current one-way."},
+      {q:"What does a transformer do?",options:["Generates electricity","Changes the size of an alternating voltage","Stores charge","Converts AC to DC"],correct:1,explanation:"A transformer changes (steps up or down) the size of an alternating voltage using electromagnetic induction."},
+      {q:"What are the two coils in a transformer called?",options:["Input and output","Primary and secondary","Positive and negative","Hot and cold"],correct:1,explanation:"The primary coil is connected to the AC supply; the secondary coil is where the induced voltage appears."},
+      {q:"Why do transformers only work with AC?",options:["AC is faster","A changing magnetic field is needed to induce voltage — DC produces a constant field","AC is safer","DC can't flow through coils"],correct:1,explanation:"Transformers need a CHANGING magnetic field to induce voltage. AC constantly changes; DC is steady, so no induction."},
+      {q:"What is the transformer equation?",options:["V₁/V₂ = n₁/n₂","V₁×V₂ = n₁×n₂","V₁/V₂ = n₂/n₁","V = IR"],correct:0,explanation:"V₁/V₂ = n₁/n₂ — the ratio of voltages equals the ratio of turns on primary and secondary coils."},
+      {q:"Why is the core of a transformer made of iron?",options:["It's cheap","It's a magnetic material that can be easily magnetised and demagnetised","It conducts electricity well","It's lightweight"],correct:1,explanation:"Iron is used because it's easily magnetised and demagnetised, efficiently transferring the magnetic field between coils."}
+    ]
+  },
+  "P10": {
+    name: "P10: Space Physics",
+    emoji: "🌌",
+    questions: [
+      {q:"What is the solar system made up of?",options:["Only the sun","The sun, planets, moons, asteroids, and comets orbiting the sun","Only Earth and the moon","Only stars"],correct:1,explanation:"The solar system = the Sun + all objects orbiting it (planets, dwarf planets, moons, asteroids, comets)."},
+      {q:"What is a satellite?",options:["Only man-made objects in space","Any object that orbits a planet (natural or artificial)","A type of star","A comet"],correct:1,explanation:"A satellite is any object orbiting a planet — the moon is a natural satellite; the ISS is artificial."},
+      {q:"What force keeps planets in orbit around the sun?",options:["Magnetism","Gravity","Friction","Air resistance"],correct:1,explanation:"Gravity provides the centripetal force that keeps planets (and satellites) in orbit."},
+      {q:"How long does it take Earth to orbit the sun?",options:["24 hours","About 365.25 days","About 28 days","100 days"],correct:1,explanation:"Earth takes about 365.25 days to orbit the sun — that's why we have a leap year every 4 years."},
+      {q:"How long does it take the Moon to orbit Earth?",options:["24 hours","About 28 days","365 days","1 year"],correct:1,explanation:"The Moon takes about 28 days to orbit Earth — this is roughly the length of a month."},
+      {q:"What is a star?",options:["A planet that glows","A ball of gas that produces light and heat by nuclear fusion","A type of comet","A satellite"],correct:1,explanation:"Stars are huge balls of gas (mainly hydrogen) that produce energy by nuclear fusion in their cores."},
+      {q:"How is a star formed?",options:["From an explosion","A cloud of dust and gas is pulled together by gravity until fusion begins","From a planet cooling","From a black hole"],correct:1,explanation:"Stars form when gravity pulls a cloud of gas and dust together. As it compresses, it heats up until fusion starts."},
+      {q:"What keeps a star stable during its main sequence phase?",options:["Only gravity","Gravity pulling inwards balanced by radiation pressure from fusion pushing outwards","Only fusion","Magnetic fields"],correct:1,explanation:"A stable star has gravity (inwards) balanced by outward pressure from nuclear fusion — this is equilibrium."},
+      {q:"What happens when a small/medium star (like the sun) runs out of hydrogen?",options:["It explodes immediately","It expands into a red giant, then sheds outer layers to form a planetary nebula, leaving a white dwarf","It becomes a black hole","It becomes a neutron star"],correct:1,explanation:"Sun-like stars become red giants, then shed outer layers (planetary nebula), leaving a dense white dwarf that cools over time."},
+      {q:"What happens when a massive star runs out of hydrogen?",options:["It becomes a white dwarf","It becomes a red supergiant, then explodes in a supernova","It disappears","It becomes a planet"],correct:1,explanation:"Massive stars become red supergiants, then explode as supernovae, leaving a neutron star or black hole."},
+      {q:"What is a black hole?",options:["A hole in space","An extremely dense object with gravity so strong that not even light can escape","A dark star","A type of planet"],correct:1,explanation:"A black hole forms when a very massive star collapses. Its gravity is so strong that nothing, not even light, can escape."},
+      {q:"What is a neutron star?",options:["A star made of neutrons formed after a supernova of a massive star","A normal star","A type of planet","A comet"],correct:0,explanation:"A neutron star is the ultra-dense core left after a supernova of a massive star — it's made almost entirely of neutrons."},
+      {q:"What is red-shift?",options:["Light getting redder as it cools","The observed wavelength of light from distant galaxies increasing (shifting to red) because they're moving away","A type of star","Light being absorbed"],correct:1,explanation:"Red-shift: light from distant galaxies has longer wavelengths — evidence they're moving away from us."},
+      {q:"What does red-shift tell us about the universe?",options:["It is shrinking","It is expanding — galaxies are moving away from each other","It is static","It is getting colder only"],correct:1,explanation:"Red-shift shows galaxies are moving away — the further they are, the faster they move. This is evidence the universe is expanding."},
+      {q:"What is the Big Bang theory?",options:["An explosion of a star","The theory that the universe began from a very hot, dense point and has been expanding ever since","A type of supernova","The formation of Earth"],correct:1,explanation:"The Big Bang theory states the universe began ~13.8 billion years ago from an extremely hot, dense state and has been expanding since."},
+      {q:"What evidence supports the Big Bang theory?",options:["Only red-shift","Red-shift of galaxies and cosmic microwave background radiation","Only the colour of stars","The size of Earth"],correct:1,explanation:"Two key pieces of evidence: (1) red-shift shows expansion, (2) cosmic microwave background radiation is leftover energy from the Big Bang."},
+      {q:"What is cosmic microwave background (CMB) radiation?",options:["Radiation from the sun","Low-frequency electromagnetic radiation from all parts of the universe — leftover from the Big Bang","Radiation from black holes","Radiation from Earth"],correct:1,explanation:"CMB radiation is the afterglow of the Big Bang — detected uniformly from all directions in space."},
+      {q:"What is a galaxy?",options:["A single star","A huge collection of billions of stars held together by gravity","A planet","A comet"],correct:1,explanation:"A galaxy is a massive system of billions of stars, dust, and gas — our galaxy is the Milky Way."},
+      {q:"What is the name of our galaxy?",options:["Andromeda","Milky Way","Triangulum","Whirlpool"],correct:1,explanation:"Our solar system is in the Milky Way galaxy, which contains over 100 billion stars."},
+      {q:"What causes a supernova?",options:["A star cooling down","The core collapse of a massive red supergiant, causing a huge explosion","Two planets colliding","A black hole forming"],correct:1,explanation:"A supernova occurs when a massive star's core collapses — the outer layers are blasted away in a huge explosion."}
+    ]
+  },
+  "P15": {
+    name: "P15: Pressure & Moments",
+    emoji: "🔧",
+    questions: [
+      {q:"What is the formula for pressure?",options:["P = F/A","P = F×A","P = F+A","P = A/F"],correct:0,explanation:"Pressure = force ÷ area (P = F/A). Measured in Pascals (Pa) or N/m²."},
+      {q:"What is the unit of pressure?",options:["Newton","Joule","Pascal","Watt"],correct:2,explanation:"Pressure is measured in Pascals (Pa). 1 Pa = 1 N/m²."},
+      {q:"Why do snowshoes prevent you from sinking into snow?",options:["They make you lighter","They increase the area, reducing pressure on the snow","They heat the snow","They are made of special material"],correct:1,explanation:"Snowshoes spread your weight over a larger area, reducing pressure (P = F/A) so you don't sink."},
+      {q:"What is the formula for the moment of a force?",options:["M = Fd","M = F/d","M = F+d","M = F×a"],correct:0,explanation:"Moment = force × perpendicular distance from the pivot (M = Fd). Measured in Newton-metres (Nm)."},
+      {q:"What is a pivot (or fulcrum)?",options:["The force applied","The fixed point around which an object turns","The distance from the force","The weight of the object"],correct:1,explanation:"A pivot is the fixed point about which an object rotates."},
+      {q:"How can you increase the moment without increasing the force?",options:["Move the force closer to the pivot","Move the force further from the pivot","Use a smaller force","Remove the pivot"],correct:1,explanation:"Moment = F × d. Increasing the distance (d) from the pivot increases the moment for the same force."},
+      {q:"What is an example of using a larger distance to increase moment?",options:["Using a short spanner","Using a long spanner to loosen a tight nut","Pushing a door near the hinge","Lifting with one finger"],correct:1,explanation:"A longer spanner increases the distance from the pivot, giving a larger moment for the same force."},
+      {q:"What does it mean for an object to be in rotational equilibrium?",options:["It is spinning fast","The total clockwise moments equal the total anticlockwise moments","It is falling","It is accelerating"],correct:1,explanation:"An object is balanced (in equilibrium) when clockwise moments = anticlockwise moments about the pivot."},
+      {q:"What is the pressure at a depth h in a fluid?",options:["P = hρg","P = ρ/gh","P = h+ρ+g","P = hg/ρ"],correct:0,explanation:"Pressure at depth = height × density × g (P = hρg). Pressure increases with depth."},
+      {q:"Why does pressure increase with depth in a fluid?",options:["There is less fluid above","There is more weight of fluid above pushing down","The fluid gets colder","Gravity decreases"],correct:1,explanation:"At greater depth, there is more fluid above, so more weight pushing down — hence greater pressure."},
+      {q:"What is upthrust?",options:["A downward force","An upward force exerted by a fluid on an object immersed in it","A type of friction","A type of gravity"],correct:1,explanation:"Upthrust is the upward force from a fluid. It occurs because pressure is greater at the bottom of the object than the top."},
+      {q:"When does an object sink?",options:["When upthrust > weight","When weight > upthrust (object is denser than fluid)","When weight = upthrust","When it is very light"],correct:1,explanation:"An object sinks if its weight is greater than the upthrust — i.e., it's denser than the fluid."},
+      {q:"When does an object float?",options:["When weight > upthrust","When upthrust ≥ weight (object is less dense than or equal density to fluid)","When it is heavy","When it is made of metal"],correct:1,explanation:"An object floats when upthrust equals or exceeds its weight — i.e., it's less dense than the fluid."},
+      {q:"Why is it easier to float in the sea than in a swimming pool?",options:["Sea water is warmer","Sea water is denser (salty), giving greater upthrust","Sea water is shallower","Sea water is colder"],correct:1,explanation:"Salt water is denser than fresh water, so it exerts a greater upthrust, making floating easier."},
+      {q:"What is atmospheric pressure?",options:["The pressure inside a balloon","The pressure exerted by the weight of air in the atmosphere","The pressure in water","The pressure in a vacuum"],correct:1,explanation:"Atmospheric pressure is caused by the weight of air molecules in the Earth's atmosphere pushing on surfaces."},
+      {q:"What happens to atmospheric pressure as you go higher?",options:["It increases","It decreases","It stays the same","It doubles"],correct:1,explanation:"Atmospheric pressure decreases with altitude — there are fewer air particles above, so less weight pushing down."},
+      {q:"Why are aircraft cabins pressurised?",options:["To make the plane heavier","Because outside atmospheric pressure at high altitude is too low for humans to breathe comfortably","To make the plane fly faster","To cool the cabin"],correct:1,explanation:"At cruising altitude, atmospheric pressure is very low. Cabins are pressurised to maintain a safe, comfortable environment."},
+      {q:"What is a lever?",options:["A type of pulley","A simple machine that uses moments to multiply force","A type of gear","A type of spring"],correct:1,explanation:"A lever is a force multiplier — by applying force further from the pivot, a larger moment is produced for less effort."},
+      {q:"What is the effect of applying force at right angles to a lever?",options:["It gives the minimum moment","It gives the maximum moment","It gives no moment","It breaks the lever"],correct:1,explanation:"Force applied perpendicular (at 90°) to a lever gives the maximum moment. At other angles, the moment is smaller."},
+      {q:"What happens to a submarine to make it dive?",options:["It loses weight","It fills ballast tanks with water, increasing its weight until weight > upthrust","It heats up","It speeds up"],correct:1,explanation:"Submarines fill ballast tanks with water to increase weight. When weight > upthrust, the submarine sinks."}
+    ]
+  },
+  "P12": {
+    name: "P12: Motion",
+    emoji: "🏃",
+    questions: [
+      {q:"What is the formula for speed?",options:["s = d/t","s = dt","s = d+t","s = t/d"],correct:0,explanation:"Speed = distance ÷ time (s = d/t). Typical walking speed is about 1.4 m/s."},
+      {q:"What is the difference between speed and velocity?",options:["They are the same","Speed is a scalar (magnitude only); velocity is a vector (magnitude and direction)","Velocity is always faster","Speed has direction; velocity doesn't"],correct:1,explanation:"Speed is how fast (scalar). Velocity is speed in a given direction (vector) — it can be negative."},
+      {q:"What is acceleration?",options:["The speed of an object","The rate of change of velocity","The distance travelled","The mass of an object"],correct:1,explanation:"Acceleration = change in velocity ÷ time taken. Measured in m/s²."},
+      {q:"What is the formula for acceleration?",options:["a = Δv/t","a = vt","a = v+t","a = v×t"],correct:0,explanation:"Acceleration = (final velocity − initial velocity) ÷ time (a = Δv/t)."},
+      {q:"What does a straight diagonal line on a distance-time graph mean?",options:["Stationary","Constant speed","Accelerating","Decelerating"],correct:1,explanation:"A straight diagonal line = constant speed. The gradient gives the speed."},
+      {q:"What does a horizontal line on a distance-time graph mean?",options:["Constant speed","Stationary","Accelerating","Decelerating"],correct:1,explanation:"A flat/horizontal line means distance isn't changing — the object is stationary."},
+      {q:"What does the gradient of a distance-time graph represent?",options:["Acceleration","Speed","Distance","Time"],correct:1,explanation:"Gradient of distance-time graph = speed. Steeper gradient = faster speed."},
+      {q:"What does a curve getting steeper on a distance-time graph mean?",options:["Constant speed","Accelerating (speeding up)","Decelerating (slowing down)","Stationary"],correct:1,explanation:"A curve getting steeper means speed is increasing — the object is accelerating."},
+      {q:"What does a straight diagonal line on a velocity-time graph mean?",options:["Stationary","Constant velocity","Constant acceleration","Deceleration"],correct:2,explanation:"A straight diagonal line on a velocity-time graph = constant acceleration. The gradient gives the acceleration."},
+      {q:"What does a horizontal line on a velocity-time graph mean?",options:["Zero velocity","Constant velocity (not accelerating)","Constant acceleration","Deceleration"],correct:1,explanation:"A flat line on a velocity-time graph = constant velocity — no acceleration."},
+      {q:"What does the gradient of a velocity-time graph represent?",options:["Distance","Speed","Acceleration","Time"],correct:2,explanation:"Gradient of velocity-time graph = acceleration. Steeper = greater acceleration."},
+      {q:"What does the area under a velocity-time graph represent?",options:["Acceleration","Speed","Distance travelled","Time"],correct:2,explanation:"The area under a velocity-time graph = distance travelled (or displacement)."},
+      {q:"What is typical human reaction time?",options:["0.01 s","0.2 - 0.4 s","1 s","5 s"],correct:1,explanation:"Typical reaction time is about 0.2-0.4 seconds. It can be affected by tiredness, drugs, alcohol, and distractions."},
+      {q:"What increases a person's reaction time (makes it slower)?",options:["Being well-rested","Tiredness, alcohol, and drugs","Drinking water","Being alert"],correct:1,explanation:"Tiredness, alcohol, drugs, and distractions slow nerve transmission, increasing reaction time."},
+      {q:"What is thinking distance?",options:["The distance travelled while braking","The distance travelled during the driver's reaction time before braking","The total stopping distance","The length of the car"],correct:1,explanation:"Thinking distance = distance travelled while the driver reacts. It depends on speed and reaction time."},
+      {q:"What is braking distance?",options:["The distance travelled during reaction time","The distance travelled while the brakes are applied","The total stopping distance","The length of the road"],correct:1,explanation:"Braking distance = distance travelled while brakes slow the car to a stop."},
+      {q:"What is stopping distance?",options:["Only thinking distance","Only braking distance","Thinking distance + braking distance","The length of the car"],correct:2,explanation:"Stopping distance = thinking distance + braking distance. Both increase with speed."},
+      {q:"What factors affect braking distance?",options:["Only speed","Speed, mass of vehicle, brake condition, and road/weather conditions","Only the driver","Only the colour of the car"],correct:1,explanation:"Braking distance increases with: higher speed, more mass, worn brakes, and poor road/weather (wet/icy)."},
+      {q:"What happens to braking distance if speed doubles?",options:["It doubles","It quadruples (×4)","It halves","It stays the same"],correct:1,explanation:"Braking distance is proportional to speed squared — doubling speed quadruples braking distance."},
+      {q:"What is the typical speed of sound in air?",options:["3 m/s","340 m/s","3000 m/s","300,000,000 m/s"],correct:1,explanation:"Sound travels at about 340 m/s in air (at room temperature). Much faster in solids and liquids."}
+    ]
+  },
+  "P14": {
+    name: "P14: Advanced Electricity",
+    emoji: "💡",
+    questions: [
+      {q:"What is the formula for charge flow?",options:["Q = It","Q = I/t","Q = I+T","Q = V/R"],correct:0,explanation:"Charge (Q) = current (I) × time (t). Measured in Coulombs (C)."},
+      {q:"What does a resistor do in a circuit?",options:["Stores charge","Opposes/reduces the flow of current","Increases voltage","Produces light"],correct:1,explanation:"A resistor opposes current flow, converting electrical energy into heat."},
+      {q:"What happens to resistance in a wire if its length increases?",options:["Resistance decreases","Resistance increases","Resistance stays the same","Resistance becomes zero"],correct:1,explanation:"Longer wire = more collisions for electrons = higher resistance. Resistance is proportional to length."},
+      {q:"What happens to resistance if the cross-sectional area of a wire increases?",options:["Resistance increases","Resistance decreases","Resistance stays the same","Resistance becomes infinite"],correct:1,explanation:"Thicker wire = more paths for electrons = lower resistance. Resistance is inversely proportional to area."},
+      {q:"What is the I-V characteristic of an ohmic conductor?",options:["A curve","A straight line through the origin","A horizontal line","A vertical line"],correct:1,explanation:"Ohmic conductors (like a fixed resistor at constant temp) have a straight-line I-V graph through the origin — resistance is constant."},
+      {q:"What is the I-V characteristic of a filament lamp?",options:["A straight line","A curve — resistance increases as temperature increases","A horizontal line","A vertical line"],correct:1,explanation:"A filament lamp's I-V graph curves because as it heats up, resistance increases."},
+      {q:"What is the I-V characteristic of a diode?",options:["A straight line through the origin","Current only flows in one direction — very high resistance in reverse","A horizontal line","A circle"],correct:1,explanation:"A diode allows current to flow in one direction only. In reverse bias, it has very high resistance."},
+      {q:"What happens to an LDR's resistance in bright light?",options:["It increases","It decreases","It stays the same","It becomes infinite"],correct:1,explanation:"An LDR's resistance decreases in bright light and increases in darkness."},
+      {q:"What is one use of an LDR?",options:["Measuring temperature","Automatic night lights and burglar alarms","Producing electricity","Heating rooms"],correct:1,explanation:"LDRs are used in light-sensing circuits — e.g. street lights that switch on when it gets dark."},
+      {q:"What happens to a thermistor's resistance as temperature increases?",options:["It increases","It decreases (for NTC thermistors)","It stays the same","It becomes infinite"],correct:1,explanation:"Most common thermistors (NTC) have resistance that decreases as temperature increases."},
+      {q:"What is one use of a thermistor?",options:["Measuring light","Temperature sensors and thermostats","Producing sound","Measuring pressure"],correct:1,explanation:"Thermistors are used in temperature-sensing circuits — e.g. thermostats that control heating."},
+      {q:"What is the formula for total resistance of resistors in series?",options:["R_total = R₁ + R₂ + R₃","R_total = R₁ × R₂","R_total = 1/R₁ + 1/R₂","R_total = R₁ - R₂"],correct:0,explanation:"In series: total resistance = sum of individual resistances (R_total = R₁ + R₂ + ...)."},
+      {q:"What is the formula for total resistance of identical resistors in parallel?",options:["R_total = R × n","R_total = R/n (where n is number of resistors)","R_total = R + n","R_total = R - n"],correct:1,explanation:"For n identical resistors in parallel: R_total = R/n. More paths = less total resistance."},
+      {q:"What is the domestic mains voltage in the UK?",options:["110 V","230 V","400 V","50 V"],correct:1,explanation:"UK mains voltage is 230 V AC at a frequency of 50 Hz."},
+      {q:"What is the frequency of UK mains electricity?",options:["60 Hz","50 Hz","100 Hz","25 Hz"],correct:1,explanation:"UK mains electricity alternates at 50 Hz — the current changes direction 100 times per second."},
+      {q:"What is the purpose of a dual insulation appliance?",options:["To make it waterproof","It has two layers of insulation and doesn't need an earth wire","To make it heavier","To increase voltage"],correct:1,explanation:"Dual-insulated appliances have plastic casings — no exposed metal, so no earth wire is needed."},
+      {q:"What colour is the live wire in a UK plug?",options:["Blue","Brown","Green and yellow","Black"],correct:1,explanation:"Live = brown. Neutral = blue. Earth = green and yellow stripes."},
+      {q:"What colour is the neutral wire in a UK plug?",options:["Brown","Blue","Green and yellow","Black"],correct:1,explanation:"Neutral = blue. It completes the circuit and is at 0 V."},
+      {q:"What colour is the earth wire in a UK plug?",options:["Brown","Blue","Green and yellow stripes","Black"],correct:2,explanation:"Earth = green and yellow stripes. It's a safety wire that prevents the casing from becoming live."},
+      {q:"What is the formula for energy transferred using power and time?",options:["E = Pt","E = P/t","E = P+T","E = P-T"],correct:0,explanation:"Energy = power × time (E = Pt). Also E = QV (charge × potential difference)."}
+    ]
+  }
+};
+
+// State per topic
+const state = {};
+Object.keys(topics).forEach(key => {
+  state[key] = {
+    active: [],
+    completed: 0,
+    firstTry: 0,
+    attempts: 0,
+    current: null,
+    answered: false
+  };
+});
+
+let currentTopic = "P1";
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildTabs() {
+  const tabsDiv = document.getElementById('tabs');
+  tabsDiv.innerHTML = '';
+  Object.keys(topics).forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (key === currentTopic ? ' active' : '');
+    const completed = state[key].completed;
+    btn.innerHTML = `${topics[key].emoji} ${topics[key].name} <span class="badge">${completed}/20</span>`;
+    btn.onclick = () => switchTopic(key);
+    tabsDiv.appendChild(btn);
+  });
+}
+
+function switchTopic(key) {
+  currentTopic = key;
+  const s = state[key];
+  if (s.active.length === 0 && s.completed === 0) {
+    s.active = shuffle(topics[key].questions.map((q, i) => ({...q, id: i, seenBefore: false})));
+  }
+  buildTabs();
+  if (s.completed === topics[key].questions.length) {
+    showComplete();
+  } else {
+    document.getElementById('quiz-area').style.display = 'block';
+    document.getElementById('complete-area').style.display = 'none';
+    showNextQuestion();
+  }
+}
+
+function showNextQuestion() {
+  const s = state[currentTopic];
+  if (s.active.length === 0) {
+    showComplete();
+    return;
+  }
+  s.answered = false;
+  s.current = s.active[0];
+  document.getElementById('topic-tag').textContent = `${topics[currentTopic].emoji} ${topics[currentTopic].name}`;
+  document.getElementById('question').textContent = s.current.q;
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('next-btn').className = 'next-btn';
+
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  s.current.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i, btn);
+    optionsDiv.appendChild(btn);
+  });
+
+  updateStats();
+}
+
+function selectAnswer(index, btn) {
+  const s = state[currentTopic];
+  if (s.answered) return;
+  s.answered = true;
+  s.attempts++;
+
+  const allBtns = document.querySelectorAll('.option');
+  allBtns.forEach(b => b.disabled = true);
+  const feedback = document.getElementById('feedback');
+
+  if (index === s.current.correct) {
+    btn.classList.add('correct');
+    feedback.className = 'feedback correct show';
+    feedback.innerHTML = `<strong>✓ Correct!</strong> ${s.current.explanation}`;
+    s.completed++;
+    if (!s.current.seenBefore) s.firstTry++;
+    s.active.shift();
+  } else {
+    btn.classList.add('wrong');
+    allBtns[s.current.correct].classList.add('correct');
+    feedback.className = 'feedback wrong show';
+    feedback.innerHTML = `<strong>✗ Not quite.</strong> Correct answer highlighted in green.<br><br><strong>Why:</strong> ${s.current.explanation}<br><br><em>This question will come back!</em>`;
+    s.current.seenBefore = true;
+    s.active.shift();
+    s.active.push(s.current);
+    state[currentTopic].active = shuffle(s.active);
+  }
+
+  document.getElementById('next-btn').className = 'next-btn show';
+  updateStats();
+  buildTabs();
+}
+
+function updateStats() {
+  const s = state[currentTopic];
+  const total = topics[currentTopic].questions.length;
+  const pct = (s.completed / total) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${s.completed} / ${total}`;
+  document.getElementById('remaining').textContent = s.active.length;
+  document.getElementById('first-try').textContent = s.firstTry;
+  document.getElementById('attempts').textContent = s.attempts;
+}
+
+function showComplete() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('complete-area').style.display = 'block';
+  const s = state[currentTopic];
+  const total = topics[currentTopic].questions.length;
+  const accuracy = Math.round((s.firstTry / total) * 100);
+  let msg = '';
+  if (accuracy === 100) msg = '🌟 Perfect! Every question right first try!';
+  else if (accuracy >= 80) msg = '🎉 Excellent — you\'re well prepared!';
+  else if (accuracy >= 60) msg = '👍 Good effort — review the ones you missed.';
+  else msg = '📚 Keep revising — try again to improve!';
+
+  document.getElementById('complete-stats').innerHTML = `
+    <p><strong>Topic:</strong> ${topics[currentTopic].emoji} ${topics[currentTopic].name}</p>
+    <p><strong>First-try accuracy:</strong> ${s.firstTry} / ${total} (${accuracy}%)</p>
+    <p><strong>Total attempts:</strong> ${s.attempts}</p>
+    <p style="margin-top:15px; font-size:16px;">${msg}</p>
+  `;
+}
+
+function restartCurrentTopic() {
+  const key = currentTopic;
+  state[key] = {
+    active: shuffle(topics[key].questions.map((q, i) => ({...q, id: i, seenBefore: false}))),
+    completed: 0, firstTry: 0, attempts: 0, current: null, answered: false
+  };
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('complete-area').style.display = 'none';
+  buildTabs();
+  showNextQuestion();
+}
+
+document.getElementById('next-btn').onclick = showNextQuestion;
+
+// Initialise first topic
+switchTopic("P1");
+</script>
+</body>
+</html>
