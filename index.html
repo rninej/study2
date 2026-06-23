@@ -1,7 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- CRITICAL: Viewport meta tag for mobile scaling -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>AQA GCSE Physics — Multi-Topic Quiz</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -10,44 +13,50 @@
     background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
     min-height: 100vh;
     padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   }
   .container {
     background: white;
     border-radius: 20px;
-    padding: 25px;
+    padding: 30px;
+    width: 100%;
     max-width: 850px;
-    margin: 0 auto;
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
   }
-  h1 { color: #333; margin-bottom: 5px; text-align: center; font-size: 24px; }
-  .subtitle { text-align: center; color: #666; margin-bottom: 8px; font-size: 13px; }
+  h1 { color: #333; margin-bottom: 5px; text-align: center; font-size: 26px; }
+  .subtitle { text-align: center; color: #666; margin-bottom: 12px; font-size: 14px; }
   .exam-info {
     text-align: center;
     background: #fff3cd;
     color: #856404;
-    padding: 10px;
+    padding: 12px;
     border-radius: 10px;
-    margin-bottom: 20px;
-    font-size: 13px;
+    margin-bottom: 25px;
+    font-size: 14px;
     font-weight: 600;
   }
   .tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 25px;
     justify-content: center;
   }
   .tab {
-    padding: 9px 14px;
+    padding: 10px 16px;
     background: #e0e0e0;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     transition: all 0.2s;
     color: #555;
+    /* Prevent text selection on double tap (mobile) */
+    user-select: none; 
+    -webkit-tap-highlight-color: transparent;
   }
   .tab:hover { background: #d0d0d0; }
   .tab.active {
@@ -60,14 +69,14 @@
     background: rgba(255,255,255,0.3);
     padding: 2px 6px;
     border-radius: 10px;
-    font-size: 10px;
-    margin-left: 4px;
+    font-size: 11px;
+    margin-left: 5px;
   }
   .progress-container {
     background: #eee;
-    border-radius: 10px;
-    height: 22px;
-    margin-bottom: 15px;
+    border-radius: 12px;
+    height: 24px;
+    margin-bottom: 20px;
     overflow: hidden;
     position: relative;
   }
@@ -84,96 +93,185 @@
     transform: translate(-50%, -50%);
     font-weight: bold;
     color: #333;
-    font-size: 12px;
+    font-size: 13px;
   }
   .stats {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 20px;
-    padding: 12px;
-    background: #f5f5f5;
-    border-radius: 10px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
   }
   .stat { text-align: center; }
-  .stat-value { font-size: 22px; font-weight: bold; color: #f5576c; }
-  .stat-label { font-size: 11px; color: #666; }
+  .stat-value { font-size: 24px; font-weight: bold; color: #f5576c; }
+  .stat-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
   .topic-tag {
     display: inline-block;
     background: #fce4ec;
     color: #c2185b;
-    padding: 5px 14px;
-    border-radius: 15px;
-    font-size: 12px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
     margin-bottom: 15px;
-    font-weight: 600;
+    font-weight: 700;
   }
   .question {
-    font-size: 17px;
-    margin-bottom: 20px;
-    color: #333;
-    line-height: 1.5;
-    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 25px;
+    color: #2d3436;
+    line-height: 1.6;
+    font-weight: 600;
   }
-  .options { display: flex; flex-direction: column; gap: 10px; }
+  .options { display: flex; flex-direction: column; gap: 12px; }
   .option {
-    padding: 14px 18px;
-    background: #f5f5f5;
-    border: 2px solid #ddd;
-    border-radius: 10px;
+    padding: 16px 20px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 15px;
     text-align: left;
     transition: all 0.2s;
+    color: #4a5568;
+    font-weight: 500;
+    -webkit-tap-highlight-color: transparent;
   }
   .option:hover:not(:disabled) {
     background: #fce4ec;
     border-color: #f5576c;
-    transform: translateX(5px);
+    color: #c2185b;
+    transform: translateX(4px);
   }
   .option:disabled { cursor: not-allowed; }
-  .option.correct { background: #c8e6c9; border-color: #4CAF50; color: #2e7d32; }
-  .option.wrong { background: #ffcdd2; border-color: #f44336; color: #c62828; }
+  .option.correct { background: #d4edda; border-color: #28a745; color: #155724; transform: none;}
+  .option.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; transform: none;}
   .feedback {
     margin-top: 20px;
-    padding: 15px;
-    border-radius: 10px;
+    padding: 18px;
+    border-radius: 12px;
     display: none;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.6;
+    animation: fadeIn 0.4s ease;
   }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   .feedback.show { display: block; }
-  .feedback.correct { background: #c8e6c9; color: #2e7d32; }
-  .feedback.wrong { background: #fff3e0; color: #e65100; border-left: 4px solid #ff9800; }
+  .feedback.correct { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+  .feedback.wrong { background: #fff3cd; color: #856404; border-left: 5px solid #ffc107; }
   .next-btn {
-    margin-top: 15px;
-    padding: 12px 30px;
-    background: #f5576c;
+    margin-top: 25px;
+    padding: 16px 30px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 16px;
     display: none;
-    font-weight: 600;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(245,87,108,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .next-btn:hover { background: #d44458; }
-  .next-btn.show { display: inline-block; }
+  .next-btn:active { transform: scale(0.98); }
+  .next-btn.show { display: block; /* changed to block for full width potential */ }
+  
   .complete {
     text-align: center;
-    padding: 25px;
+    padding: 30px 15px;
   }
-  .complete h2 { color: #4CAF50; margin-bottom: 15px; }
+  .complete h2 { color: #28a745; margin-bottom: 20px; font-size: 28px; }
   .restart-btn {
-    padding: 12px 30px;
-    background: #f5576c;
+    padding: 16px 35px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    font-size: 15px;
-    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 25px;
+    box-shadow: 0 4px 15px rgba(245,87,108,0.3);
+    -webkit-tap-highlight-color: transparent;
   }
-  .restart-btn:hover { background: #d44458; }
+  
+  /* --- MOBILE OPTIMIZATION MEDIA QUERIES --- */
+  @media (max-width: 768px) {
+    body {
+      padding: 10px;
+    }
+    .container {
+      padding: 20px 15px;
+      border-radius: 15px;
+    }
+    h1 {
+      font-size: 22px;
+    }
+    .subtitle {
+      font-size: 12px;
+    }
+    .exam-info {
+      font-size: 12px;
+      padding: 10px;
+    }
+    .tabs {
+      gap: 6px;
+    }
+    .tab {
+      padding: 8px 12px;
+      font-size: 12px;
+      flex-grow: 1; /* Allows tabs to fill available space nicely */
+      text-align: center;
+    }
+    .stats {
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-value {
+      font-size: 20px;
+    }
+    .stat-label {
+      font-size: 10px;
+    }
+    .question {
+      font-size: 16px;
+    }
+    .option {
+      padding: 14px 15px;
+      font-size: 14px;
+    }
+    /* Make buttons full width on mobile for easier tapping */
+    .next-btn, .restart-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .tabs {
+      /* On very small screens, horizontal scroll for tabs is better than huge blocks */
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      justify-content: flex-start;
+      padding-bottom: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+    .tabs::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+    .tab {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+  }
 </style>
 </head>
 <body>
@@ -214,7 +312,7 @@
 
   <div id="complete-area" class="complete" style="display:none;">
     <h2>🎉 Topic Complete!</h2>
-    <div id="complete-stats" style="margin:20px 0; font-size:15px;"></div>
+    <div id="complete-stats" style="margin:20px 0; font-size:16px;"></div>
     <button class="restart-btn" onclick="restartCurrentTopic()">Restart This Topic</button>
   </div>
 </div>
@@ -672,3 +770,5 @@ switchTopic("P1");
 </script>
 </body>
 </html>
+
+```
